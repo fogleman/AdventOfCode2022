@@ -32,3 +32,23 @@ def search(room, minute, pressure, remaining):
 
 remaining = set(k for k, v in rooms.items() if v[0])
 print(max(search('AA', 0, 0, remaining)))
+
+def search(positions, times, minute, pressure, remaining):
+    yield pressure
+    for i, (room, t) in enumerate(zip(positions, times)):
+        if minute < t:
+            continue
+        for other in list(remaining):
+            m = minute + distances[(room, other)] + 1
+            p = pressure + (30 - m) * rooms[other][0]
+            if m >= 30:
+                continue
+            positions[i] = other
+            times[i] = m
+            remaining.remove(other)
+            yield from search(positions, times, min(times), p, remaining)
+            positions[i] = room
+            times[i] = t
+            remaining.add(other)
+
+print(max(search(['AA', 'AA'], [4, 4], 4, 0, remaining)))
