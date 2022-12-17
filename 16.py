@@ -33,22 +33,47 @@ def search(room, minute, pressure, remaining):
 remaining = set(k for k, v in rooms.items() if v[0])
 print(max(search('AA', 0, 0, remaining)))
 
-def search(positions, times, minute, pressure, remaining):
+best = 0
+def search(positions, times, pressure, remaining, path):
+    global best
+    if pressure > best:
+        best = pressure
+        # print(best, remaining, positions, times)
+        # print(' '.join(b for a, b in path if a == 0))
+        # print(' '.join(b for a, b in path if a == 1))
+
     yield pressure
-    for i, (room, t) in enumerate(zip(positions, times)):
-        if minute < t:
+
+    rates = [rooms[other][0] for other in remaining]
+    rates.sort(reverse=True)
+    p = pressure
+    m = min(times) + 2
+    for rate in rates:
+        p += (30 - m) * rate
+    if p <= best:
+        return
+
+    v = [0, 1] if len(path) % 2 == 0 else [1, 0]
+    # for i, (room, t) in enumerate(list(zip(positions, times))):
+    for i in v:
+        room, t = positions[i], times[i]
+        if t >= 30:
             continue
-        for other in list(remaining):
-            m = minute + distances[(room, other)] + 1
-            p = pressure + (30 - m) * rooms[other][0]
-            if m >= 30:
+        order = list(remaining)
+        order.sort(key=lambda other: rooms[other][0] * (30 - (t + distances[(room, other)] + 1)), reverse=True)
+        for other in order:
+            m = t + distances[(room, other)] + 1
+            if m > 30:
                 continue
+            p = pressure + (30 - m) * rooms[other][0]
             positions[i] = other
             times[i] = m
             remaining.remove(other)
-            yield from search(positions, times, min(times), p, remaining)
+            path.append((i, other))
+            yield from search(positions, times, p, remaining, path)
             positions[i] = room
             times[i] = t
             remaining.add(other)
+            path.pop()
 
-print(max(search(['AA', 'AA'], [4, 4], 4, 0, remaining)))
+print(max(search(['AA', 'AA'], [4, 4], 0, remaining, [])))
