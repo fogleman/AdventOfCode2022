@@ -13,64 +13,6 @@ path = path.replace('R', ' R ')
 path = path.replace('L', ' L ')
 path = path.split()
 
-def cube_example(x, y, d):
-    n = 4
-    B = (2, 0)
-    Y = (0, 1)
-    O = (1, 1)
-    W = (2, 1)
-    G = (2, 2)
-    R = (3, 2)
-
-    def result(pq, ij, d):
-        p, q = pq
-        i, j = ij
-        return p * n + i, q * n + j, d
-
-    pq = x // n, y // n
-    i, j = x % n, y % n
-    ni, nj = n - i - 1, n - j - 1
-
-    # ..B.
-    # YOW.
-    # ..GR
-
-    if d == 0 and i == n - 1: # right
-        if pq == B: # right to left
-            return result(R, (n - 1, nj), 2)
-        if pq == W: # right to down
-            return result(R, (nj, 0), 1)
-        if pq == R: # right to left
-            return result(B, (n - 1, nj), 2)
-    if d == 1 and j == n - 1: # down
-        if pq == Y: # down to up
-            return result(G, (ni, n - 1), 3)
-        if pq == O: # down to right
-            return result(G, (0, ni), 0)
-        if pq == G: # down to up
-            return result(Y, (ni, n - 1), 3)
-        if pq == R: # down to right
-            return result(Y, (0, ni), 0)
-    if d == 2 and i == 0: # left
-        if pq == B: # left to down
-            return result(O, (j, 0), 1)
-        if pq == Y: # left to up
-            return result(R, (nj, n - 1), 3)
-        if pq == G: # left to up
-            return result(O, (nj, n - 1), 3)
-    if d == 3 and j == 0: # up
-        if pq == B: # up to down
-            return result(Y, (ni, 0), 1)
-        if pq == Y: # up to down
-            return result(B, (ni, 0), 1)
-        if pq == O: # up to right
-            return result(B, (0, i), 0)
-        if pq == R: # up to left
-            return result(W, (n - 1, ni), 2)
-
-    dx, dy = dirs[d]
-    return (x + dx, y + dy, d)
-
 def cube(x, y, d):
     n = 50
     B = (1, 0)
@@ -81,9 +23,7 @@ def cube(x, y, d):
     Y = (0, 3)
 
     def result(pq, ij, d):
-        p, q = pq
-        i, j = ij
-        return p * n + i, q * n + j, d
+        return pq[0] * n + ij[0], pq[1] * n + ij[1], d
 
     pq = x // n, y // n
     i, j = x % n, y % n
@@ -127,19 +67,7 @@ def cube(x, y, d):
         if pq == O: # up to right
             return result(W, (0, i), 0)
 
-    dx, dy = dirs[d]
-    return (x + dx, y + dy, d)
-
-def show(x, y, d):
-    c = '>v<^'[d]
-    for j in range(h):
-        for i in range(w):
-            if (i, j) == (x, y):
-                print(c, end='')
-            else:
-                print(grid[j][i], end='')
-        print()
-    print()
+    return (x + dirs[d][0], y + dirs[d][1], d)
 
 def run(x, y, d, path, one):
     for op in path:
